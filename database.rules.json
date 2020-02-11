@@ -1,0 +1,56 @@
+{
+  /* Visit https://firebase.google.com/docs/database/security to learn more about security rules. */
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "auth.uid === $uid",
+        ".write": "auth.uid === $uid",
+        "name": {
+          ".validate": "newData.isString()"
+        },
+        "events": {
+          "$event": {
+            ".validate": "root.child('events/' + $event).exists()",
+            "responses": {
+              ".validate": "newData.isNumber()"
+            }
+          }
+        },
+        "connections": {
+          "$otherUser": {
+            ".validate": "root.child('users/' + $otherUser).exists()",
+            ".write": "auth.token.guest != true",
+            ".read": "auth.token.guest != true"
+          }
+        },
+        "managed_events": {
+          "$event": {
+            ".validate": "root.child('events/' + $event).exists()",
+            ".write": "auth.token.manager === true && root.child('events/' + $event + '/manager').val() === $uid"
+          }
+        }
+      }
+    },
+    "events": {
+      "$event": {
+        ".read": true,
+        ".write": "auth.uid === root.child('users/' + auth.uid + '/managed_events/ + $event).exists() && auth.token.manager === true",
+        "$manager": {
+          ".validate": "root.child('users/' + $manager).exists()"
+        },
+        "expires": {
+          ".validate": "newData.val() > now"
+        },
+        "questionnaire": {
+          ".validate": "newData.isString()"
+        },
+        "users": {
+          "$uid": {
+            ".validate": "root.child('users/' + $uid).exists()",
+            ".write": true
+          }
+        }
+      }
+    }
+  }
+}
