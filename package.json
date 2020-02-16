@@ -1,0 +1,26 @@
+{
+  "name": "opa-infrastructure",
+  "version": "1.0.0",
+  "description": "Infrastructure setup for Opa.",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha --time=100000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CS179i/infrastructure.git"
+  },
+  "author": "Nick Pleatsikas <nick@pleatsikas.me>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/CS179i/infrastructure/issues"
+  },
+  "homepage": "https://github.com/CS179i/infrastructure#readme",
+  "devDependencies": {
+    "@firebase/testing": "^0.16.9",
+    "mocha": "^7.0.1"
+  }
+}
