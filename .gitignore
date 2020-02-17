@@ -65,4 +65,5 @@ node_modules/
 .env
 
 # Vim
-********.swp
+*.swp
+*.swo
