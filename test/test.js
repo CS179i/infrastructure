@@ -1,28 +1,21 @@
+const helpers = require("./helpers");
 const firebase = require("@firebase/testing");
 const fs = require("fs");
 
 // Setup unit tests
-const dbname = "opa-test";
 const rules = fs.readFileSync("database.rules.json", "utf8");
-
-function getApp(uid) {
-    return firebase.initializeTestApp({
-        databaseName: dbname, 
-        auth: {uid: uid}
-    }).database();
-}
 
 // Load rules and cleanup when complete.
 before(async () => {
     await firebase.loadDatabaseRules({
-        databaseName: dbname,
+        databaseName: "opa-test",
         rules: rules
     });
 });
 
 beforeEach(async () => {
     await firebase.initializeAdminApp({
-        databaseName: dbname
+        databaseName: "opa-test"
     }).database().ref().set(null);
 });
 
@@ -32,23 +25,12 @@ after(async () => {
 
 // Unit tests
 describe("user creation", () => {
-    const alice = getApp("alice");
-    const bob = getApp("bob");
+    var alice = null;
+    var bob = null;
     
     it("should allow a user to create themselves", async () => {
-        await alice.ref("users/alice").set({
-            "name": "Alice Smith",
-            "events": {},
-            "connections": {},
-            "managed_events": {}
-        });
-
-        await bob.ref("users/bob").set({
-            "name": "Bob Smith",
-            "events": {},
-            "connections": {},
-            "managed_events": {}
-        });
+        alice = await helpers.createUser("alice", "Alice Smith", "normal");
+        bob = await helpers.createUser("bob", "Bob Smith", "normal");
 
         await firebase.assertSucceeds(alice.ref("users/alice").once("value"));
         await firebase.assertSucceeds(bob.ref("users/bob").once("value"));
@@ -58,5 +40,22 @@ describe("user creation", () => {
         await firebase.assertFails(
             alice.ref("users/bob").update({"name": "Jane Doe"})
         );
+
+        await firebase.assertFails(
+            bob.ref("users/alice").update({"name": "John Smith"})
+        );
+    });
+});
+
+describe("event rules", () => {
+    var alice = null;
+    var bob = null;
+
+    it("should allow users to create events", async () => {
+        alice = await helpers.createUser("alice", "Alice Smith", "manager");
+        bob = await helpers.createUser("bob", "Bob Smith", "manager");
+
+        await helpers.createEvent(alice, "alice", "test");
+        await firebase.assertSucceeds(alice.ref("events/test").once("value"));
     });
 });
