@@ -23,25 +23,32 @@
           }
         },
         "managed_events": {
-          "$event": {
-            ".validate": "root.child('events/' + $event).exists()",
-            ".write": "auth.token.manager === true && root.child('events/' + $event + '/manager').val() === $uid"
-          }
+          ".validate": "root.child('events/' + newData.val()).exists()",
+          ".write": "auth.token.manager === true"
         }
       }
     },
     "events": {
       "$event": {
         ".read": true,
-        ".write": "auth.uid === root.child('users/' + auth.uid + '/managed_events/' + $event).exists() && auth.token.manager === true",
-        "$manager": {
-          ".validate": "root.child('users/' + $manager).exists()"
+        ".write": "auth.uid === newData.child('manager').val() && auth.token.manager === true",
+        "manager": {
+          ".validate": "root.child('users/' + newData.val()).exists()"
         },
         "expires": {
           ".validate": "newData.val() > now"
         },
         "questionnaire": {
-          ".validate": "newData.isString()"
+          "$question": {
+            "content": {
+              ".validate": "newData.isString()"
+            },
+            "responses": {
+              "$response":{
+                ".validate": "newData.isString()"
+              }
+            }
+          }
         },
         "users": {
           "$uid": {
