@@ -7,6 +7,9 @@
         "name": {
           ".validate": "newData.isString()"
         },
+        "company": {
+          ".validate": "newData.isString()"
+        },
         "events": {
           "$event": {
             ".validate": "root.child('events/' + $event).exists()",
