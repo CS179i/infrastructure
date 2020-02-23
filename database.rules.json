@@ -33,7 +33,7 @@
     },
     "events": {
       "$event": {
-        ".read": true,
+        ".read": "auth.uid != null",
         ".write": "auth.uid === newData.child('manager').val() && auth.token.manager === true",
         "manager": {
           ".validate": "root.child('users/' + newData.val()).exists()"
