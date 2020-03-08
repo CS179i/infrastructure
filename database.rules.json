@@ -1,5 +1,7 @@
 {
   "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null",
     "users": {
       "$uid": {
         ".read": "auth.uid === $uid",
@@ -11,30 +13,22 @@
           ".validate": "newData.isString()"
         },
         "events": {
-          "$event": {
-            ".validate": "root.child('events/' + $event).exists()",
-            "responses": {
-              ".validate": "newData.isNumber()"
-            }
-          }
+          ".validate": "root.child('events/' + newData.val()).exists()"
         },
         "connections": {
           "$otherUser": {
-            ".validate": "root.child('users/' + $otherUser).exists()",
-            ".write": "auth.token.guest != true",
-            ".read": "auth.token.guest != true"
+            ".validate": "root.child('users/' + $otherUser).exists()"
           }
         },
         "managed_events": {
-          ".validate": "root.child('events/' + newData.val()).exists()",
-          ".write": "auth.token.manager === true"
+          ".validate": "root.child('events/' + newData.val()).exists()"
         }
       }
     },
     "events": {
       "$event": {
-        ".read": "auth.uid != null",
-        ".write": "auth.uid === newData.child('manager').val() && auth.token.manager === true",
+        ".read": "auth != null",
+        ".write": "auth.uid === newData.child('manager').val()",
         "manager": {
           ".validate": "root.child('users/' + newData.val()).exists()"
         },
@@ -42,21 +36,28 @@
           ".validate": "newData.val() > now"
         },
         "questionnaire": {
-          "$question": {
-            "content": {
-              ".validate": "newData.isString()"
-            },
-            "responses": {
-              "$response":{
-                ".validate": "newData.isString()"
-              }
-            }
-          }
+          ".validate": "root.child('questionnaires/' + newData.val()).exists()"
         },
         "users": {
           "$uid": {
-            ".validate": "root.child('users/' + $uid).exists()",
-            ".write": true
+            ".validate": "root.child('users/' + $uid).exists() && newData.isNumber()",
+            ".write": "auth != null"
+          }
+        }
+      }
+    },
+    "questionnaires": {
+      ".read": "auth != null",
+      ".write": false,
+      "$questionnaire": {
+        "$question": {
+          "content": {
+            ".validate": "newData.isString()"
+          },
+          "possible_responses": {
+            "$response":{
+              ".validate": "newData.isString()"
+            }
           }
         }
       }
