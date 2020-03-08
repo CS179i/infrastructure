@@ -1,0 +1,6 @@
+# GCP service account credentials
+*.json
+
+# Terraform
+.terraform/
+terraform.tfstate*
