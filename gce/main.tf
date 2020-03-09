@@ -55,6 +55,8 @@ resource "google_compute_instance" "backend" {
     access_config {} // Ensure that this instance has an IP address.
   }
 
+  metadata_startup_script = file("launch.sh")
+
   service_account {
     email = var.service-account-email
     scopes = ["cloud-platform", "userinfo-email", "https://www.googleapis.com/auth/firebase.database"]
