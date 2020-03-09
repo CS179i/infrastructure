@@ -6,10 +6,8 @@ services:
     ports:
       - "9000"
     environment:
-      GOOGLE_APPLICATION_CREDENTIALS: /config/gcp-creds.json
       FIREBASE_CONFIG: /config/firebase-config.json
     volumes:
-      - ${GOOGLE_APPLICATION_CREDENTIALS}:/config/gcp-creds.json:ro
       - ${FIREBASE_CONFIG}:/config/firebase-config.json:ro
   proxy:
     image: caddy/caddy
