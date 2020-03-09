@@ -5,6 +5,38 @@ provider "google" {
   zone        = var.default-zone
 }
 
+resource "google_compute_network" "opa-net" {
+  name = "opa-net"
+}
+
+resource "google_compute_subnetwork" "opa-net-us-west2" {
+  name          = "opa-net-us-west2"
+  ip_cidr_range = "10.2.0.0/16"
+  region        = var.default-region
+  network       = google_compute_network.opa-net.self_link
+}
+
+resource "google_compute_firewall" "default" {
+  name    = "default-firewall"
+  network = google_compute_network.opa-net.name
+
+  allow {
+    protocol = "icmp"
+  }
+
+  // Web traffic.
+  allow {
+    protocol  = "tcp"
+    ports     = ["80", "443"]
+  }
+
+  // SSH.
+  allow {
+    protocol  = "tcp"
+    ports     = ["22"]
+  }
+}
+
 resource "google_compute_instance" "backend" {
   name          = "backend"
   machine_type  = "n1-standard-1"
@@ -17,7 +49,9 @@ resource "google_compute_instance" "backend" {
   }
 
   network_interface {
-    network = "default"
+    network     = "opa-net"
+    subnetwork  = "opa-net-us-west2"
+    
     access_config {} // Ensure that this instance has an IP address.
   }
 
