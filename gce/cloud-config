@@ -1,0 +1,34 @@
+#cloud-config
+# vim: syntax=yaml
+#
+# This is the instance configuration for the backend server. Provisions all
+# system resources.
+#
+# Maintaner: <nick@pleatsikas.me>
+write_files:
+  - path: /config/firebase-config.json
+    owner: root
+    permissions: 0644
+    content: |
+      {
+        "projectId": "opa-268409",
+        "databaseURL": "https://opa-268409.firebaseio.com/"
+      }
+
+runcmd:
+  - iptables -w -A INPUT -p tcp --match multiport --dports 80,443 -j ACCEPT
+  - docker network create -d bridge opa
+  - |
+    docker run \
+      --network=opa \
+      --name=backend \
+      -v /config:/config:ro \
+      --rm -d \
+      gcr.io/opa-268409/opa-backend:latest
+  - |
+    docker run \
+      --network=opa \
+      --name=proxy \
+      -p 80:80 -p 443:443 \
+      --rm -d \
+      caddy/caddy:latest caddy reverse-proxy --from api.opa.social --to backend:9000 --change-host-header

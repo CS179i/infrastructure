@@ -55,7 +55,9 @@ resource "google_compute_instance" "backend" {
     access_config {} // Ensure that this instance has an IP address.
   }
 
-  metadata_startup_script = file("launch.sh")
+  metadata = {
+    user-data = file("cloud-config") // Cloud init configuration.
+  }
 
   service_account {
     email = var.service-account-email
